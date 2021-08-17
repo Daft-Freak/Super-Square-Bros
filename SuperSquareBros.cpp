@@ -1766,7 +1766,7 @@ public:
             y += yVel * dt;
 
             // Here check collisions...
-            for (uint16_t i = 0; i < foreground.size(); i++) {
+            for (size_t i = 0; i < foreground.size(); i++) {
                 if (colliding(foreground[i])) {
                     if (yVel > 0) {
                         // Collided from top
@@ -1777,19 +1777,23 @@ public:
                         y = foreground[i].y + SPRITE_SIZE;
                     }
                     yVel = 0;
+                    break;
                 }
             }
 
             // Platforms may need work
-            for (uint16_t i = 0; i < platforms.size(); i++) {
+            for (size_t i = 0; i < platforms.size(); i++) {
                 handle_platform_collisions(platforms[i]);
             }
+
+            if(xVel == 0.0f)
+                return;
 
             // Move entity x
             x += xVel * dt;
 
             // Here check collisions...
-            for (uint16_t i = 0; i < foreground.size(); i++) {
+            for (size_t i = 0; i < foreground.size(); i++) {
                 if (colliding(foreground[i])) {
                     if (xVel > 0) {
                         // Collided from left
@@ -1800,6 +1804,7 @@ public:
                         x = foreground[i].x + SPRITE_SIZE - 1;
                     }
                     xVel = 0;
+                    break;
                 }
             }
 
