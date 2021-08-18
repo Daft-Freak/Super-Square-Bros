@@ -1886,7 +1886,8 @@ public:
                         }
                         xVel = 0;
                         break;
-                    }
+                    } else if(tile.y > int(y) + SPRITE_SIZE)
+                        break; // reached below the entity, stop checking
                 }
 
                 if (xVel > 0) {
