@@ -1495,8 +1495,8 @@ Finish finish;
 
 class AnimatedTransition {
 public:
-    uint8_t x, y;
     float closedTimer;
+    uint8_t x, y;
 
     AnimatedTransition() {
         animationTimer = 0;
@@ -1592,7 +1592,7 @@ public:
     }
 
 protected:
-    enum class TransitionState {
+    enum class TransitionState : uint8_t {
         OPENING,
         OPEN,
         CLOSING,
@@ -1688,8 +1688,8 @@ public:
     }
 
 protected:
-    float animationTimer;
     uint16_t currentFrame;
+    float animationTimer;
 } checkpoint;
 
 
@@ -1792,11 +1792,11 @@ class Entity {
 public:
     float x, y;
     float xVel, yVel;
+    std::vector<Particle> particles;
+    float jumpCooldown;
     uint8_t health;
     bool locked;
-    std::vector<Particle> particles;
     uint8_t lastDirection;
-    float jumpCooldown;
 
     Entity() {
         x = y = 0;
@@ -2024,8 +2024,8 @@ public:
     }
 
 protected:
-    uint16_t anchorFrame;
     bool deathParticles;
+    uint16_t anchorFrame;
     float immuneTimer;
 };
 
@@ -2399,7 +2399,7 @@ public:
     }
 
 protected:
-    enum class EnemyType {
+    enum class EnemyType : uint8_t {
         BASIC, // type 1
         RANGED, // type 2
         PURSUIT, // type 3
@@ -2411,15 +2411,14 @@ protected:
         SHOOTING // type 9
     } enemyType;
 
-    float reloadTimer;
+    uint8_t state;
 
     // Used for SHOOTING enemy
-    float rapidfireTimer;
     uint8_t shotsLeft;
+    float rapidfireTimer;
+    float reloadTimer;
 
     float currentSpeed;
-
-    uint8_t state;
 
     //enum EntityState {
     //    IDLE,
@@ -3400,8 +3399,9 @@ protected:
     float injuredTimer;
     uint8_t minionsToSpawn;
 
-    uint16_t spawnX, spawnY;
     bool dead;
+    uint16_t spawnX, spawnY;
+
     float shakeOnLanding;
 };
 std::vector<Boss> bosses; // used for levels where there is a boss.
@@ -3416,9 +3416,9 @@ class Player : public Entity {
 public:
     uint8_t score;
     uint8_t enemiesKilled;
-    float levelTimer;
     uint8_t id;
     uint8_t lives;
+    float levelTimer;
 
     Player() : Entity() {
         score = 0;
