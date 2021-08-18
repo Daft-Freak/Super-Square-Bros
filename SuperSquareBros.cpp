@@ -1829,25 +1829,29 @@ public:
     }
 
     bool is_on_block() {
+        int bottomY = int(y) + SPRITE_SIZE;
+
         // Is entity on a tile?
         for (uint16_t i = 0; i < foreground.size(); i++) {
-            if (y + SPRITE_SIZE == foreground[i].y && foreground[i].x + SPRITE_SIZE - 1 > x && foreground[i].x + 1 < x + SPRITE_SIZE) {
+            if (bottomY == foreground[i].y && foreground[i].x + SPRITE_SIZE - 1 > x && foreground[i].x + 1 < x + SPRITE_SIZE) {
                 // On top of block
                 return true;
-            }
+            } else if(foreground[i].y > bottomY)
+                break;
         }
 
         // Is entity on a platform?
         for (uint16_t i = 0; i < platforms.size(); i++) {
-            if (y + SPRITE_SIZE == platforms[i].y && platforms[i].x + SPRITE_SIZE - 1 > x && platforms[i].x + 1 < x + SPRITE_SIZE) {
+            if (bottomY == platforms[i].y && platforms[i].x + SPRITE_SIZE - 1 > x && platforms[i].x + 1 < x + SPRITE_SIZE) {
                 // On top of block
                 return true;
-            }
+            } else if(platforms[i].y > bottomY)
+                break;
         }
 
         // Is entity on a locked LevelTrigger?
         for (uint16_t i = 0; i < levelTriggers.size(); i++) {
-            if (y + SPRITE_SIZE == levelTriggers[i].y && levelTriggers[i].x + SPRITE_SIZE - 1 > x && levelTriggers[i].x + 1 < x + SPRITE_SIZE) {
+            if (bottomY == levelTriggers[i].y && levelTriggers[i].x + SPRITE_SIZE - 1 > x && levelTriggers[i].x + 1 < x + SPRITE_SIZE) {
                 // On top of block
                 if (allPlayerSaveData[playerSelected].levelReached < levelTriggers[i].levelNumber) {
                     // LevelTrigger is locked
