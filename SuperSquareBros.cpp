@@ -3619,7 +3619,7 @@ public:
 
             if (!dropPlayer) {
                 for (Boss& boss : bosses) {
-                    if (boss.is_dead() && colliding(boss)) {
+                    if (!boss.is_dead() && colliding(boss)) {
                         if (y + SPRITE_SIZE < boss.y + SPRITE_QUARTER) {
                             // Collided from top
                             y = boss.y - SPRITE_SIZE;
