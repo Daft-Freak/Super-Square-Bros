@@ -5693,6 +5693,8 @@ void load_audio() {
 
     // Set volume to a default
     audioHandler.set_volume(DEFAULT_VOLUME);
+
+#ifndef PICO_BUILD
     // Sfx
     audioHandler.load(0, asset_sound_select, asset_sound_select_length);
     audioHandler.load(1, asset_sound_jump, asset_sound_jump_length);
@@ -5706,6 +5708,7 @@ void load_audio() {
 
     // Start splash music playing
     audioHandler.play(7);
+#endif
 
     // Note: to play sfx0, call audioHandler.play(0)
     // For music, need to load sound when changing (i.e. audioHandler.load(7, asset_music_<music>, asset_music_<music>_length); audioHandler.play(7, 0b11);
