@@ -2031,25 +2031,28 @@ public:
                 bool reverseDirection = true;
 
                 float tempX = lastDirection ? x + SPRITE_SIZE : x - SPRITE_SIZE;
+                int bottomY = int(y) + SPRITE_SIZE;
 
-                for (uint16_t i = 0; i < platforms.size(); i++) {
-                    if (y + SPRITE_SIZE == platforms[i].y && platforms[i].x + SPRITE_SIZE > tempX + 1 && platforms[i].x < tempX + SPRITE_SIZE - 1) {
+                for (auto &platform : platforms) {
+                    if (bottomY == platform.y && platform.x + SPRITE_SIZE > tempX + 1 && platform.x < tempX + SPRITE_SIZE - 1) {
                         // About to be on block
                         reverseDirection = false;
+                        break;
                     }
                 }
 
                 for (uint16_t i = 0; i < foreground.size(); i++) {
-                    if (y + SPRITE_SIZE == foreground[i].y && foreground[i].x + SPRITE_SIZE > tempX + 1 && foreground[i].x < tempX + SPRITE_SIZE - 1) {
+                    if (bottomY == foreground[i].y && foreground[i].x + SPRITE_SIZE > tempX + 1 && foreground[i].x < tempX + SPRITE_SIZE - 1) {
                         // About to be on block
                         reverseDirection = false;
                     }
-                    if (foreground[i].y + SPRITE_SIZE > y && foreground[i].y < y + SPRITE_SIZE && (lastDirection ? x + SPRITE_SIZE - 1 : x - SPRITE_SIZE + 1) == foreground[i].x) {
+                    if (foreground[i].y + SPRITE_SIZE > y && foreground[i].y < bottomY && (lastDirection ? x + SPRITE_SIZE - 1 : x - SPRITE_SIZE + 1) == foreground[i].x) {
                         // Walked into side of block
                         reverseDirection = true;
                         // Break because we definitely need to change direction, and don't want any other blocks resetting this to false
                         break;
-                    }
+                    } else if(foreground[i].y > bottomY)
+                        break; // tile is below the enemy, all future tiles will also be below so stop checking
                 }
 
                 if (reverseDirection) {
@@ -2110,6 +2113,8 @@ public:
                     state = 0;
                 }
 
+                int bottomY = int(y) + SPRITE_SIZE;
+
                 if (state == 0) {
                     // Just patrol... (Same as basic enemy)
                     currentSpeed = ENTITY_IDLE_SPEED;
@@ -2118,24 +2123,26 @@ public:
 
                     float tempX = lastDirection ? x + SPRITE_SIZE : x - SPRITE_SIZE;
 
-                    for (uint16_t i = 0; i < platforms.size(); i++) {
-                        if (y + SPRITE_SIZE == platforms[i].y && platforms[i].x + SPRITE_SIZE > tempX + 1 && platforms[i].x < tempX + SPRITE_SIZE - 1) {
+                    for (auto &platform : platforms) {
+                        if (bottomY == platform.y && platform.x + SPRITE_SIZE > tempX + 1 && platform.x < tempX + SPRITE_SIZE - 1) {
                             // About to be on block
                             reverseDirection = false;
+                            break;
                         }
                     }
 
                     for (uint16_t i = 0; i < foreground.size(); i++) {
-                        if (y + SPRITE_SIZE == foreground[i].y && foreground[i].x + SPRITE_SIZE > tempX + 1 && foreground[i].x < tempX + SPRITE_SIZE - 1) {
+                        if (bottomY == foreground[i].y && foreground[i].x + SPRITE_SIZE > tempX + 1 && foreground[i].x < tempX + SPRITE_SIZE - 1) {
                             // About to be on block
                             reverseDirection = false;
                         }
-                        if (foreground[i].y + SPRITE_SIZE > y && foreground[i].y < y + SPRITE_SIZE && (lastDirection ? x + SPRITE_SIZE - 1 : x - SPRITE_SIZE + 1) == foreground[i].x) {
+                        if (foreground[i].y + SPRITE_SIZE > y && foreground[i].y < bottomY && (lastDirection ? x + SPRITE_SIZE - 1 : x - SPRITE_SIZE + 1) == foreground[i].x) {
                             // Walked into side of block
                             reverseDirection = true;
                             // Break because we definitely need to change direction, and don't want any other blocks resetting this to false
                             break;
-                        }
+                        } else if(foreground[i].y > bottomY)
+                            break; // tile is below the enemy, all future tiles will also be below so stop checking
                     }
 
                     if (reverseDirection) {
@@ -2153,7 +2160,7 @@ public:
                     float tempX = lastDirection ? x + SPRITE_SIZE : x - SPRITE_SIZE;
 
                     for (uint16_t i = 0; i < platforms.size(); i++) {
-                        if (y + SPRITE_SIZE == platforms[i].y && platforms[i].x + SPRITE_SIZE > tempX + 1 && platforms[i].x < tempX + SPRITE_SIZE - 1) {
+                        if (bottomY == platforms[i].y && platforms[i].x + SPRITE_SIZE > tempX + 1 && platforms[i].x < tempX + SPRITE_SIZE - 1) {
                             // About to be on block
                             shouldJump = false;
                             break;
@@ -2161,7 +2168,7 @@ public:
                     }
 
                     for (uint16_t i = 0; i < foreground.size(); i++) {
-                        if (y + SPRITE_SIZE == foreground[i].y && foreground[i].x + SPRITE_SIZE > tempX + 1 && foreground[i].x < tempX + SPRITE_SIZE - 1) {
+                        if (bottomY == foreground[i].y && foreground[i].x + SPRITE_SIZE > tempX + 1 && foreground[i].x < tempX + SPRITE_SIZE - 1) {
                             // About to be on block
                             shouldJump = false;
                             break;
@@ -2203,14 +2210,18 @@ public:
 
 
                 bool reverseDirection = false;
-                float tempX = lastDirection ? x + SPRITE_SIZE : x - SPRITE_SIZE;
+
+                float tempX = lastDirection ? x + SPRITE_SIZE - 1 : x - SPRITE_SIZE + 1;
+
                 for (uint16_t i = 0; i < foreground.size(); i++) {
-                    if (foreground[i].y + SPRITE_SIZE > y && foreground[i].y < y + SPRITE_SIZE && (lastDirection ? x + SPRITE_SIZE - 1 : x - SPRITE_SIZE + 1) == foreground[i].x) {
+                    if (foreground[i].y + SPRITE_SIZE > y && foreground[i].y < y + SPRITE_SIZE && tempX == foreground[i].x) {
                         // Walked into side of block
                         reverseDirection = true;
                         // Break because we definitely need to change direction, and don't want any other blocks resetting this to false
                         break;
-                    }
+                    } else if(foreground[i].y > y + SPRITE_SIZE)
+                        break;
+
                     /*if (jumpCooldown == 0 && y + SPRITE_SIZE == foreground[i].y && foreground[i].x + SPRITE_SIZE - 1 > x && foreground[i].x + 1 < x + SPRITE_SIZE) {
                         yVel = -ENTITY_JUMP_SPEED;
                         jumpCooldown = ENTITY_JUMP_COOLDOWN;
