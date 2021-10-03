@@ -2004,7 +2004,7 @@ public:
     }
 
     bool colliding(Tile& tile) {
-        if (gameSaveData.hackyFastMode >= 1) {
+        //if (gameSaveData.hackyFastMode >= 1) {
             // 24.8 fixed-point, thanks to Daft Freak
             const int scale = 256;
             int ix = int(x * scale);
@@ -2014,10 +2014,10 @@ public:
                 && tile.x * scale < ix + (SPRITE_SIZE - 1) * scale
                 && (tile.y + SPRITE_SIZE) * scale > iy
                 && tile.y * scale < iy + SPRITE_SIZE * scale);
-        }
-        else {
-            return (tile.x + SPRITE_SIZE > x + 1 && tile.x < x + SPRITE_SIZE - 1 && tile.y + SPRITE_SIZE > y && tile.y < y + SPRITE_SIZE);
-        }
+        //}
+        //else {
+        //    return (tile.x + SPRITE_SIZE > x + 1 && tile.x < x + SPRITE_SIZE - 1 && tile.y + SPRITE_SIZE > y && tile.y < y + SPRITE_SIZE);
+        //}
     }
 
     void set_immune() {
