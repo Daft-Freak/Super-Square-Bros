@@ -1081,6 +1081,12 @@ public:
             }
         }
     }
+
+    Point transform(int pos_x, int pos_y) {
+        // move rounding issue offscreen by 8 pixels where we can't see it
+        // instead of rounding correctly because that's more expensive
+        return Point(int(pos_x + 8 - x) - 8, int(pos_y + 8 - y) - 8);
+    }
 protected:
     float timer;
 };
@@ -1121,7 +1127,7 @@ public:
 
     void render(Camera& camera) {
         screen.pen = Pen(colour.r, colour.g, colour.b, colour.a);
-        screen.pixel(Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+        screen.pixel(camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
     }
 
     void update(float dt) {
@@ -1164,7 +1170,7 @@ public:
     }
 
     void render(Camera& camera) {
-        render_sprite(id, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+        render_sprite(id, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
     }
 
     void update(float dt) {
@@ -1275,7 +1281,7 @@ public:
     }
 
     void render(Camera& camera) {
-        render_sprite(id, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+        render_sprite(id, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
         //screen.sprite(id, Point(SCREEN_MID_WIDTH + x - camera.x - SPRITE_QUARTER, SCREEN_MID_HEIGHT + y - camera.y - SPRITE_QUARTER));
         //screen.rectangle(Rect(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y, 4, 4));
     }
@@ -1328,7 +1334,7 @@ public:
     void render(Camera& camera)
     {
         //screen.sprite(id, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-        render_sprite(id, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+        render_sprite(id, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
     }
 
     uint16_t get_id() {
@@ -1366,7 +1372,7 @@ public:
         //screen.sprite(id, Point(SCREEN_MID_WIDTH + x - (camera.x * parallaxFactorLayersX[layer]), SCREEN_MID_HEIGHT + y - (camera.y * parallaxFactorLayersY[layer])));
         // Not shifting sprite to center seems to give better coverage of parallax
         //screen.sprite(id, Point(x - (camera.x * parallaxFactorLayersX[layer]), y - (camera.y * parallaxFactorLayersY[layer])));
-        render_sprite(id, Point(x - (camera.x * parallaxFactorLayersX[layer]), y - (camera.y * parallaxFactorLayersY[layer])));
+        render_sprite(id, Point(int(x + 8 - (camera.x * parallaxFactorLayersX[layer])) - 8, int(y + 8 - (camera.y * parallaxFactorLayersY[layer])) - 8));
     }
 
 protected:
@@ -1423,7 +1429,7 @@ public:
     void render(Camera& camera) {
         if (!collected) {
             //screen.sprite(frames[currentFrame], Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-            render_sprite(frames[currentFrame], Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+            render_sprite(frames[currentFrame], camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
         }
     }
 
@@ -1666,8 +1672,8 @@ public:
         if (x && y) {
             // Only render if not in default position
 
-            render_sprite(TILE_ID_CHECKPOINT, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-            render_sprite(TILE_ID_CHECKPOINT - 16 + (colour * CHECKPOINT_FRAMES) + currentFrame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y - SPRITE_SIZE));
+            render_sprite(TILE_ID_CHECKPOINT, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
+            render_sprite(TILE_ID_CHECKPOINT - 16 + (colour * CHECKPOINT_FRAMES) + currentFrame, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y - SPRITE_SIZE));
 
             // Particles
             for (Particle& particle : particles) {
@@ -1766,7 +1772,7 @@ public:
             screen.pen = Pen(levelTriggerParticleColours[1].r, levelTriggerParticleColours[1].g, levelTriggerParticleColours[1].b, levelTriggerParticleColours[1].a);
             screen.text(std::to_string(levelNumber + 1), minimal_font, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_HALF, SCREEN_MID_HEIGHT + y - camera.y - SPRITE_HALF * 3 + textY), true, TextAlign::center_center);
             //screen.sprite(TILE_ID_LEVEL_TRIGGER, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-            render_sprite(TILE_ID_LEVEL_TRIGGER, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+            render_sprite(TILE_ID_LEVEL_TRIGGER, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
         }
 
         // Particles
@@ -1992,11 +1998,11 @@ public:
 
                 if (lastDirection == 1) {
                     //screen.sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
-                    render_sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
+                    render_sprite(frame, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y), SpriteTransform::HORIZONTAL);
                 }
                 else {
                     //screen.sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-                    render_sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+                    render_sprite(frame, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
                 }
             }
         }
@@ -3330,14 +3336,14 @@ public:
                 if (lastDirection == 1) {
                     for (uint8_t i = 0; i < 4; i++) {
                         for (uint8_t j = 0; j < 4; j++) {
-                            render_sprite(frame + i + j * 16, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_SIZE * (3 - i), SCREEN_MID_HEIGHT + y - camera.y + SPRITE_SIZE * j), SpriteTransform::HORIZONTAL);
+                            render_sprite(frame + i + j * 16, camera.transform(SCREEN_MID_WIDTH + x + SPRITE_SIZE * (3 - i), SCREEN_MID_HEIGHT + y + SPRITE_SIZE * j), SpriteTransform::HORIZONTAL);
                         }
                     }
                 }
                 else {
                     for (uint8_t i = 0; i < 4; i++) {
                         for (uint8_t j = 0; j < 4; j++) {
-                            render_sprite(frame + i + j * 16, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_SIZE * i, SCREEN_MID_HEIGHT + y - camera.y + SPRITE_SIZE * j));
+                            render_sprite(frame + i + j * 16, camera.transform(SCREEN_MID_WIDTH + x + SPRITE_SIZE * i, SCREEN_MID_HEIGHT + y + SPRITE_SIZE * j));
                         }
                     }
                 }
@@ -3358,17 +3364,17 @@ public:
 
                 if (lastDirection == 1) {
                     //screen.sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
-                    render_sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
-                    render_sprite(frame + 1, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
-                    render_sprite(frame + 16, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y - camera.y + SPRITE_SIZE), SpriteTransform::HORIZONTAL);
-                    render_sprite(frame + 17, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y + SPRITE_SIZE), SpriteTransform::HORIZONTAL);
+                    render_sprite(frame, camera.transform(SCREEN_MID_WIDTH + x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y), SpriteTransform::HORIZONTAL);
+                    render_sprite(frame + 1, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y), SpriteTransform::HORIZONTAL);
+                    render_sprite(frame + 16, camera.transform(SCREEN_MID_WIDTH + x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y + SPRITE_SIZE), SpriteTransform::HORIZONTAL);
+                    render_sprite(frame + 17, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y + SPRITE_SIZE), SpriteTransform::HORIZONTAL);
                 }
                 else {
                     //screen.sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-                    render_sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-                    render_sprite(frame + 1, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y - camera.y));
-                    render_sprite(frame + 16, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y + SPRITE_SIZE));
-                    render_sprite(frame + 17, Point(SCREEN_MID_WIDTH + x - camera.x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y - camera.y + SPRITE_SIZE));
+                    render_sprite(frame, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
+                    render_sprite(frame + 1, camera.transform(SCREEN_MID_WIDTH + x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y));
+                    render_sprite(frame + 16, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y + SPRITE_SIZE));
+                    render_sprite(frame + 17, camera.transform(SCREEN_MID_WIDTH + x + SPRITE_SIZE, SCREEN_MID_HEIGHT + y + SPRITE_SIZE));
                 }
             }
         }
@@ -3933,16 +3939,16 @@ public:
 
                 if (lastDirection == 1) {
                     //screen.sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
-                    render_sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y), SpriteTransform::HORIZONTAL);
+                    render_sprite(frame, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y), SpriteTransform::HORIZONTAL);
                 }
                 else {
                     //screen.sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
-                    render_sprite(frame, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+                    render_sprite(frame, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
                 }
 
 
                 if (slowPlayer || repelPlayer) {
-                    render_sprite(448, Point(SCREEN_MID_WIDTH + x - camera.x, SCREEN_MID_HEIGHT + y - camera.y));
+                    render_sprite(448, camera.transform(SCREEN_MID_WIDTH + x, SCREEN_MID_HEIGHT + y));
                 }
             }
         }
