@@ -13,14 +13,19 @@ using namespace blit;
 
 void init_game();
 
-#ifdef PICO_BUILD
+// attempting to detect a picosystem through some "internal" #defines
+// (default for the ST7789 code is 240x240, but can be overridden through DISPLAY_WIDTH)
+#if defined(PICO_BUILD) && defined(DISPLAY_ST7789) && !defined(DISPLAY_WIDTH)
+#define SQUARE_SCREEN
+#endif
+
+#ifdef SQUARE_SCREEN
 const uint16_t SCREEN_WIDTH = 120;
 const uint16_t SCREEN_HEIGHT = 120;
-
 #else
 const uint16_t SCREEN_WIDTH = 160;
 const uint16_t SCREEN_HEIGHT = 120;
-#endif // PICO_BUILD
+#endif // SQUARE_SCREEN
 
 
 #ifdef PICO_BUILD
@@ -266,32 +271,34 @@ const uint16_t BYTE_SIZE = 256;
 const uint16_t DEFAULT_VOLUME = 0x5000;
 
 
-#ifdef PICO_BUILD
+#ifdef SQUARE_SCREEN
 const uint16_t TEXT_BORDER = SPRITE_SIZE;
 
 #else
 const uint16_t TEXT_BORDER = SPRITE_SIZE * 2;
-#endif // PICO_BUILD
+#endif // SQUARE_SCREEN
 
 // NOTE: all positions (x,y) mark TOP LEFT corner of sprites
 
 // NOTE: issue with rendering (tiles on left are a pixel out sometimes) is due to integers being added to floats. Something along lines of (int)floorf(camera.x) etc is recommended, but when I tried it I got strange results.
 // If I implement that again, remember that all float calcs should be done, *then* casted, rather than casting each to int then adding etc
 
-#ifdef PICO_BUILD
-const uint8_t SETTINGS_COUNT = 3;
-
+#ifdef SQUARE_SCREEN
 const std::string COINS_COLLECTED = "Coins:";
 const std::string ENEMIES_KILLED = "Enemies:";
 const std::string TIME_TAKEN = "Time:";
+#else
+const std::string COINS_COLLECTED = "Coins collected:";
+const std::string ENEMIES_KILLED = "Enemies killed:";
+const std::string TIME_TAKEN = "Time taken:";
+#endif // SQUARE_SCREEN
+
+#ifdef PICO_BUILD
+const uint8_t SETTINGS_COUNT = 3;
 
 const std::string CONTROLLER_TEXT = "Pico";
 #else
 const uint8_t SETTINGS_COUNT = 2;
-
-const std::string COINS_COLLECTED = "Coins collected:";
-const std::string ENEMIES_KILLED = "Enemies killed:";
-const std::string TIME_TAKEN = "Time taken:";
 
 #ifdef TARGET_32BLIT_HW
 const std::string CONTROLLER_TEXT = "32Blit";
@@ -4847,9 +4854,9 @@ void render_credits() {
     background_rect(0);
 
     uint8_t offset = 0;
-#ifdef PICO_BUILD
+#ifdef SQUARE_SCREEN
     offset = SPRITE_HALF;
-#endif // PICO_BUILD
+#endif // SQUARE_SCREEN
 
 
     screen.pen = Pen(defaultWhite.r, defaultWhite.g, defaultWhite.b);
