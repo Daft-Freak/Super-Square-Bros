@@ -2649,7 +2649,7 @@ public:
 
                 currentSpeed = BOSS_1_ANGRY_SPEED - BOSS_1_SPEED_REDUCTION_SCALE * get_abs_center_range(x, *playerX);
 
-                //printf("Immune state (2), current speed %f\n", currentSpeed);
+                //debugf("Immune state (2), current speed %f\n", currentSpeed);
 
                 // Head away from player
                 lastDirection = *playerX + SPRITE_HALF < x + SPRITE_SIZE ? 1 : 0;
@@ -5881,8 +5881,8 @@ void init_game() {
         if (reset) {
             GameVersion saveDataVersion = get_version_struct(gameSaveData.version);
 
-            printf("Warning: Saved game data is out of date, save version is %d (v%d.%d.%d), but firmware version is %d (v%d.%d.%d)\n", gameSaveData.version, saveDataVersion.major, saveDataVersion.minor, saveDataVersion.build, get_version(gameVersion), gameVersion.major, gameVersion.minor, gameVersion.build);
-            printf("Resetting save data...\n");
+            debugf("Warning: Saved game data is out of date, save version is %d (v%d.%d.%d), but firmware version is %d (v%d.%d.%d)\n", gameSaveData.version, saveDataVersion.major, saveDataVersion.minor, saveDataVersion.build, get_version(gameVersion), gameVersion.major, gameVersion.minor, gameVersion.build);
+            debugf("Resetting save data...\n");
 
             success = false;
             reset_save();
@@ -5891,7 +5891,7 @@ void init_game() {
 
     if (success) {
         GameVersion saveDataVersion = get_version_struct(gameSaveData.version);
-        printf("Save data loaded, save version: %d (v%d.%d.%d)\n", gameSaveData.version, saveDataVersion.major, saveDataVersion.minor, saveDataVersion.build);
+        debugf("Save data loaded, save version: %d (v%d.%d.%d)\n", gameSaveData.version, saveDataVersion.major, saveDataVersion.minor, saveDataVersion.build);
 
         // Loaded sucessfully!
         gameState = GameState::STATE_MENU;
@@ -5981,7 +5981,7 @@ void init() {
     // Load metadata
     metadata = get_metadata();
     gameVersion = parse_version(metadata.version);
-    printf("Loaded metadata. Game version: %d (v%d.%d.%d)\n", get_version(gameVersion), gameVersion.major, gameVersion.minor, gameVersion.build);
+    debugf("Loaded metadata. Game version: %d (v%d.%d.%d)\n", get_version(gameVersion), gameVersion.major, gameVersion.minor, gameVersion.build);
 
     // Populate transition array
     for (uint8_t y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
