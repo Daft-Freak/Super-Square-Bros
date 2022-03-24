@@ -1506,26 +1506,22 @@ Finish finish;
 class AnimatedTransition {
 public:
     float closedTimer;
-    uint8_t x, y;
 
     AnimatedTransition() {
         animationTimer = 0;
         currentFrame = 0;
 
         state = TransitionState::OPEN;
-        x = y = 0;
         closedTimer = 0;
     }
 
-    AnimatedTransition(uint16_t xPosition, uint16_t yPosition, std::vector<uint16_t> open, std::vector<uint16_t> close) {
+    AnimatedTransition(std::vector<uint16_t> open, std::vector<uint16_t> close) {
         animationTimer = 0;
         currentFrame = 0;
 
         openingFrames = open;
         closingFrames = close;
         state = TransitionState::OPEN;
-        x = xPosition;
-        y = yPosition;
 
         closedTimer = 0;
     }
@@ -1560,20 +1556,24 @@ public:
     }
 
     void render(Camera& camera) {
-        if (state == TransitionState::CLOSING) {
-            //screen.sprite(closingFrames[currentFrame], Point(x, y));
-            render_sprite(closingFrames[currentFrame], Point(x, y));
-        }
-        else if (state == TransitionState::OPENING) {
-            //screen.sprite(openingFrames[currentFrame], Point(x, y), SpriteTransform::HORIZONTAL);
-            render_sprite(openingFrames[currentFrame], Point(x, y), SpriteTransform::HORIZONTAL);
-        }
-        else if (state == TransitionState::CLOSED || state == TransitionState::READY_TO_OPEN) {
-            //screen.sprite(closingFrames[closingFrames.size() - 1], Point(x, y));
-            render_sprite(closingFrames[closingFrames.size() - 1], Point(x, y));
-        }
-        else if (state == TransitionState::OPEN) {
-            // Don't do anything
+        for (uint8_t y = 0; y < SCREEN_HEIGHT; y += SPRITE_SIZE) {
+            for (uint8_t x = 0; x < SCREEN_WIDTH; x += SPRITE_SIZE) {
+                if (state == TransitionState::CLOSING) {
+                    //screen.sprite(closingFrames[currentFrame], Point(x, y));
+                    render_sprite(closingFrames[currentFrame], Point(x, y));
+                }
+                else if (state == TransitionState::OPENING) {
+                    //screen.sprite(openingFrames[currentFrame], Point(x, y), SpriteTransform::HORIZONTAL);
+                    render_sprite(openingFrames[currentFrame], Point(x, y), SpriteTransform::HORIZONTAL);
+                }
+                else if (state == TransitionState::CLOSED || state == TransitionState::READY_TO_OPEN) {
+                    //screen.sprite(closingFrames[closingFrames.size() - 1], Point(x, y));
+                    render_sprite(closingFrames[closingFrames.size() - 1], Point(x, y));
+                }
+                else if (state == TransitionState::OPEN) {
+                    // Don't do anything
+                }
+            }
         }
     }
 
@@ -1614,9 +1614,7 @@ protected:
     std::vector<uint16_t> openingFrames, closingFrames;
     uint16_t currentFrame;
 };
-AnimatedTransition transition[SCREEN_TILE_SIZE];
-
-
+AnimatedTransition transition(transitionFramesOpen, transitionFramesClose);
 
 
 class Checkpoint {
@@ -4052,27 +4050,19 @@ void display_stats(bool showBadges) {
 
 
 void open_transition() {
-    for (uint16_t i = 0; i < SCREEN_TILE_SIZE; i++) {
-        transition[i].open();
-    }
+    transition.open();
 }
 
 void close_transition() {
-    for (uint16_t i = 0; i < SCREEN_TILE_SIZE; i++) {
-        transition[i].close();
-    }
+    transition.close();
 }
 
 void render_transition() {
-    for (uint16_t i = 0; i < SCREEN_TILE_SIZE; i++) {
-        transition[i].render(camera);
-    }
+    transition.render(camera);
 }
 
 void update_transition(float dt, ButtonStates& buttonStates) {
-    for (uint16_t i = 0; i < SCREEN_TILE_SIZE; i++) {
-        transition[i].update(dt, buttonStates);
-    }
+    transition.update(dt, buttonStates);
 }
 
 
@@ -5283,10 +5273,10 @@ void update_input_select(float dt, ButtonStates& buttonStates) {
         }
     }
     else {
-        if (transition[0].is_ready_to_open()) {
+        if (transition.is_ready_to_open()) {
             start_menu();
         }
-        else if (transition[0].is_open()) {
+        else if (transition.is_open()) {
             if (gameSaveData.inputType == InputType::CONTROLLER) {
                 if (buttonStates.DOWN) {
                     gameSaveData.inputType = InputType::KEYBOARD;
@@ -5322,7 +5312,7 @@ void update_character_select(float dt, ButtonStates& buttonStates) {
     player.update(dt, dummyStates);
 
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         if (menuBack) {
             menuBack = false;
             start_menu();
@@ -5331,7 +5321,7 @@ void update_character_select(float dt, ButtonStates& buttonStates) {
             start_level_select();
         }
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (buttonStates.RIGHT && !playerSelected) {
             audioHandler.play(0);
 
@@ -5375,7 +5365,7 @@ void update_menu(float dt, ButtonStates& buttonStates) {
         }
     }
     else {
-        if (transition[0].is_ready_to_open()) {
+        if (transition.is_ready_to_open()) {
             if (menuBack) {
                 menuBack = false;
                 start_input_select();
@@ -5392,7 +5382,7 @@ void update_menu(float dt, ButtonStates& buttonStates) {
                 }
             }
         }
-        else if (transition[0].is_open()) {
+        else if (transition.is_open()) {
             if (buttonStates.A == 2) {
                 audioHandler.play(0);
 
@@ -5420,13 +5410,13 @@ void update_credits(float dt, ButtonStates& buttonStates) {
     update_coins(dt);
     update_checkpoint(dt);
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         if (menuBack) {
             menuBack = false;
             start_menu();
         }
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (buttonStates.A == 2) {
             /*audioHandler.play(0);
 
@@ -5467,7 +5457,7 @@ void update_settings(float dt, ButtonStates& buttonStates) {
     update_coins(dt);
     update_checkpoint(dt);
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         if (menuBack) {
             menuBack = false;
             start_menu();
@@ -5481,7 +5471,7 @@ void update_settings(float dt, ButtonStates& buttonStates) {
             }
         }*/
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (buttonStates.A == 2) {
             audioHandler.play(0);
 
@@ -5557,7 +5547,7 @@ void update_level_select(float dt, ButtonStates& buttonStates) {
 
     // Button handling
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         if (menuBack) {
             menuBack = false;
             start_character_select();
@@ -5566,7 +5556,7 @@ void update_level_select(float dt, ButtonStates& buttonStates) {
             start_level(currentLevelNumber);
         }
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (cameraNewWorld) {
             if (camera.tempX == 0.0f && camera.tempY == 0.0f) {
                 camera.tempX = camera.x;
@@ -5681,7 +5671,7 @@ void update_game(float dt, ButtonStates& buttonStates) {
     //    player.y += (finish.y - player.y) * 4 * dt;
     //}
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         if (pauseMenuItem == 1) {
             // Player exited level
             start_level_select();
@@ -5698,7 +5688,7 @@ void update_game(float dt, ButtonStates& buttonStates) {
         // Unload coin sfx, load select sfx file back into select sfx slot
         audioHandler.load(0, 0);
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (gamePaused) {
             if (pauseMenuItem == 0) {
                 if (buttonStates.RIGHT == 2) {
@@ -5829,10 +5819,10 @@ void update_game_lost(float dt, ButtonStates& buttonStates) {
         create_confetti(dt);
     }
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         start_level_select();
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (buttonStates.A == 2) {
             audioHandler.play(0);
 
@@ -5855,10 +5845,10 @@ void update_game_won(float dt, ButtonStates& buttonStates) {
         create_confetti(dt);
     }
 
-    if (transition[0].is_ready_to_open()) {
+    if (transition.is_ready_to_open()) {
         start_level_select();
     }
-    else if (transition[0].is_open()) {
+    else if (transition.is_open()) {
         if (buttonStates.A == 2) {
             audioHandler.play(0);
 
@@ -5988,13 +5978,6 @@ void init() {
     metadata = get_metadata();
     gameVersion = parse_version(metadata.version);
     debugf("Loaded metadata. Game version: %d (v%d.%d.%d)\n", get_version(gameVersion), gameVersion.major, gameVersion.minor, gameVersion.build);
-
-    // Populate transition array
-    for (uint8_t y = 0; y < SCREEN_HEIGHT / SPRITE_SIZE; y++) {
-        for (uint8_t x = 0; x < SCREEN_WIDTH / SPRITE_SIZE; x++) {
-            transition[y * (SCREEN_WIDTH / SPRITE_SIZE) + x] = AnimatedTransition(x * SPRITE_SIZE, y * SPRITE_SIZE, transitionFramesOpen, transitionFramesClose);
-        }
-    }
 
 
     allPlayerSaveData[0] = load_player_data(0);
