@@ -284,26 +284,26 @@ const uint16_t TEXT_BORDER = SPRITE_SIZE * 2;
 // If I implement that again, remember that all float calcs should be done, *then* casted, rather than casting each to int then adding etc
 
 #ifdef SQUARE_SCREEN
-const std::string COINS_COLLECTED = "Coins:";
-const std::string ENEMIES_KILLED = "Enemies:";
-const std::string TIME_TAKEN = "Time:";
+const std::string_view COINS_COLLECTED = "Coins:";
+const std::string_view ENEMIES_KILLED = "Enemies:";
+const std::string_view TIME_TAKEN = "Time:";
 #else
-const std::string COINS_COLLECTED = "Coins collected:";
-const std::string ENEMIES_KILLED = "Enemies killed:";
-const std::string TIME_TAKEN = "Time taken:";
+const std::string_view COINS_COLLECTED = "Coins collected:";
+const std::string_view ENEMIES_KILLED = "Enemies killed:";
+const std::string_view TIME_TAKEN = "Time taken:";
 #endif // SQUARE_SCREEN
 
 #ifdef PICO_BUILD
 const uint8_t SETTINGS_COUNT = 3;
 
-const std::string CONTROLLER_TEXT = "Pico";
+const std::string_view CONTROLLER_TEXT = "Pico";
 #else
 const uint8_t SETTINGS_COUNT = 2;
 
 #ifdef TARGET_32BLIT_HW
-const std::string CONTROLLER_TEXT = "32Blit";
+const std::string_view CONTROLLER_TEXT = "32Blit";
 #else
-const std::string CONTROLLER_TEXT = "Controller";
+const std::string_view CONTROLLER_TEXT = "Controller";
 #endif // TARGET_32BLIT_HW
 #endif // PICO_BUILD
 
@@ -374,7 +374,7 @@ std::vector<uint16_t> confettiParticleImages = {
 };
 
 
-const std::string messageStrings[MESSAGE_STRINGS_COUNT][INPUT_TYPE_COUNT] = {
+const std::string_view messageStrings[MESSAGE_STRINGS_COUNT][INPUT_TYPE_COUNT] = {
     {
         "Press A to Start",
         "Press U to Start"
