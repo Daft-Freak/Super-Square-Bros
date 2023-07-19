@@ -13,14 +13,14 @@ using namespace blit;
 
 void init_game();
 
-#ifdef PICO_BUILD
+#ifdef BLIT_BOARD_PIMORONI_PICOSYSTEM
 const uint16_t SCREEN_WIDTH = 120;
 const uint16_t SCREEN_HEIGHT = 120;
 
 #else
 const uint16_t SCREEN_WIDTH = 160;
 const uint16_t SCREEN_HEIGHT = 120;
-#endif // PICO_BUILD
+#endif // BLIT_BOARD_PIMORONI_PICOSYSTEM
 
 
 #ifdef PICO_BUILD
@@ -266,12 +266,12 @@ const uint16_t BYTE_SIZE = 256;
 const uint16_t DEFAULT_VOLUME = 0x5000;
 
 
-#ifdef PICO_BUILD
+#ifdef BLIT_BOARD_PIMORONI_PICOSYSTEM
 const uint16_t TEXT_BORDER = SPRITE_SIZE;
 
 #else
 const uint16_t TEXT_BORDER = SPRITE_SIZE * 2;
-#endif // PICO_BUILD
+#endif // BLIT_BOARD_PIMORONI_PICOSYSTEM
 
 // NOTE: all positions (x,y) mark TOP LEFT corner of sprites
 
@@ -4833,9 +4833,9 @@ void render_credits() {
     background_rect(0);
 
     uint8_t offset = 0;
-#ifdef PICO_BUILD
+#ifdef BLIT_BOARD_PIMORONI_PICOSYSTEM
     offset = SPRITE_HALF;
-#endif // PICO_BUILD
+#endif // BLIT_BOARD_PIMORONI_PICOSYSTEM
 
 
     screen.pen = Pen(defaultWhite.r, defaultWhite.g, defaultWhite.b);
