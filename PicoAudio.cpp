@@ -1,6 +1,46 @@
+#include <cstring>
+
 #include "Audio.hpp"
 
 namespace AudioHandler {
+	static bool ch0_is_coin = false;
+
+	void audio_callback(blit::AudioChannel &) {
+		using namespace blit;
+
+		// setting wave_buffer_offset to 63 would make this run every sample
+
+		// jump sweep
+		if(channels[1].adsr_phase != ADSRPhase::OFF) {
+			auto jump_sample = channels[1].adsr_frame;
+			if(channels[1].adsr_phase == ADSRPhase::DECAY)
+				jump_sample += (channels[1].attack_ms * sample_rate) / 1000;
+
+			const int jump_len_samples = sample_rate * 0.2f;
+
+			channels[1].frequency = 512 + jump_sample * 512 / jump_len_samples;
+		} else
+			channels[1].frequency = 512; // reset
+
+		// coin
+		const uint32_t coin_freq_change = 0xFFFFFF * 0.66f; // when we've decayed below this
+
+		if(ch0_is_coin)
+			channels[0].frequency = channels[0].adsr > coin_freq_change ? 800 : 1280;
+		channels[2].frequency = channels[2].adsr > coin_freq_change ? 932 : 1396;
+
+		// enemy death
+		//channels[3].frequency = 300 - (channels[3].adsr >> 16);
+		// enemy hurt
+		//channels[4].frequency = 300 - (channels[1].adsr >> 16);
+
+		// player death
+		channels[5].frequency = 500 - (channels[5].adsr >> 16);
+
+		// enemy throw
+		channels[6].frequency = 450 - (channels[6].adsr >> 16) / 2;
+	}
+
 	AudioHandler::AudioHandler() {
 	}
 
@@ -69,6 +109,9 @@ namespace AudioHandler {
 		blit::channels[7].sustain = 0;
 		blit::channels[7].release_ms = 0;
 
+		blit::channels[7].wave_buffer_callback = audio_callback;
+		memset(blit::channels[7].wave_buffer, 0, sizeof(blit::channels[7].wave_buffer));
+
 #ifdef BLIT_BOARD_PIMORONI_PICOSYSTEM
 		// PicoSystem can only do square
 		for(int i = 0; i < CHANNEL_COUNT; i++)
@@ -120,6 +163,8 @@ namespace AudioHandler {
 		}
 		else if (channel == 7 && blit::channels[7].volume) {
 			// Play a tune!
+			blit::channels[7].waveforms = blit::Waveform::SQUARE;
+			blit::channels[7].sustain = 0;
 			play_tune = true;
 			note = 0;
 			t = 0.0f;
@@ -134,36 +179,6 @@ namespace AudioHandler {
 	void AudioHandler::update(float dt) {
 		using namespace blit;
 
-		// jump sweep
-		if(channels[1].adsr_phase != ADSRPhase::OFF) {
-			auto jump_sample = channels[1].adsr_frame;
-			if(channels[1].adsr_phase == ADSRPhase::DECAY)
-				jump_sample += (channels[1].attack_ms * sample_rate) / 1000;
-
-			const int jump_len_samples = sample_rate * 0.2f;
-
-			channels[1].frequency = 512 + jump_sample * 512 / jump_len_samples;
-		} else
-			channels[1].frequency = 512; // reset
-
-		// coin
-		const uint32_t coin_freq_change = 0xFFFFFF * 0.66f; // when we've decayed below this
-
-		if(ch0_is_coin)
-			channels[0].frequency = channels[0].adsr > coin_freq_change ? 800 : 1280;
-		channels[2].frequency = channels[2].adsr > coin_freq_change ? 932 : 1396;
-
-		// enemy death
-		//channels[3].frequency = 300 - (channels[3].adsr >> 16);
-		// enemy hurt
-		//channels[4].frequency = 300 - (channels[1].adsr >> 16);
-
-		// player death
-		channels[5].frequency = 500 - (channels[5].adsr >> 16);
-
-		// enemy throw
-		channels[6].frequency = 450 - (channels[6].adsr >> 16) / 2;
-
 		if (play_tune) {
 			t += dt;
 			if (t > 0.125f) {
@@ -177,6 +192,11 @@ namespace AudioHandler {
 					play_tune = false;
 				}
 			}
+		} else if(!play_tune && channels[7].adsr_phase == ADSRPhase::OFF) {
+			// re-purpose the music channel as an audio timer when not playing the tune
+			blit::channels[7].waveforms = blit::Waveform::WAVE;
+			blit::channels[7].sustain = 0xFFFF;
+			blit::channels[7].trigger_sustain();
 		}
 	}
 }

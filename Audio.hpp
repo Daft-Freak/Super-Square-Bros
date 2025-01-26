@@ -33,7 +33,6 @@ namespace AudioHandler {
 		};
 		uint8_t note = 0;
 		bool play_tune = true;
-		bool ch0_is_coin = false;
 		float t = 0.0f;
 #else
 		blit::MP3Stream mp3_channels[8];
