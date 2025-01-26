@@ -158,10 +158,8 @@ namespace AudioHandler {
 
 	void AudioHandler::play(uint8_t channel, uint8_t flags) {
 		if (channel <= 6 && blit::channels[channel].volume) {
-			blit::channels[channel].adsr = 0xFFFFFF; // bit of a cheat to disable attack
 			blit::channels[channel].trigger_attack();
-		}
-		else if (channel == 7 && blit::channels[7].volume) {
+		} else if (channel == 7 && blit::channels[7].volume) {
 			// Play a tune!
 			blit::channels[7].waveforms = blit::Waveform::SQUARE;
 			blit::channels[7].sustain = 0;
