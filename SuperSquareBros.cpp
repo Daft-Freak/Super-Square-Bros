@@ -5914,14 +5914,12 @@ void init_game() {
 void load_audio() {
     audioHandler.init();
 
-#ifndef PICO_BUILD
-    // NOTE: CURRENTLY ISSUE WITH LEAVING PAUSE MENU, blip AUDIO IS PLAYED, BUT THEN NEW SOUND IS LOADED IN, STOPPING PLAYBACK.
-
-
-
     // Setup audio volumes
     audioHandler.set_volume(gameSaveData.sfxVolume ? DEFAULT_VOLUME : 0);
     audioHandler.set_volume(7, gameSaveData.musicVolume ? DEFAULT_VOLUME : 0);
+
+#ifndef PICO_BUILD
+    // NOTE: CURRENTLY ISSUE WITH LEAVING PAUSE MENU, blip AUDIO IS PLAYED, BUT THEN NEW SOUND IS LOADED IN, STOPPING PLAYBACK.
 
     // Sfx
     audioHandler.load(0, asset_sound_select, asset_sound_select_length);
