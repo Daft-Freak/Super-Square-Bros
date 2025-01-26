@@ -7,9 +7,9 @@ namespace AudioHandler {
 	void AudioHandler::init() {
 		// Coin A / Select
 		blit::channels[0].waveforms = blit::Waveform::SQUARE;
-		blit::channels[0].frequency = 880;
-		blit::channels[0].attack_ms = 100;
-		blit::channels[0].decay_ms = 100;
+		blit::channels[0].frequency = 400;
+		blit::channels[0].attack_ms = 30;
+		blit::channels[0].decay_ms = 50;
 		blit::channels[0].sustain = 0;
 		blit::channels[0].release_ms = 0;
 
@@ -89,6 +89,22 @@ namespace AudioHandler {
 	void AudioHandler::load(uint8_t target_channel, uint8_t source_channel) {
 		(void)target_channel;
 		(void)source_channel;
+
+		if(target_channel == 0) {
+			if(source_channel == 0) {
+				// switching to select sound
+				blit::channels[0].frequency = 400;
+				blit::channels[0].attack_ms = 30;
+				blit::channels[0].decay_ms = 50;
+				ch0_is_coin = false;
+			} else if(source_channel == 2) {
+				// switching to coin sound
+				blit::channels[0].frequency = 880;
+				blit::channels[0].attack_ms = 100;
+				blit::channels[0].decay_ms = 100;
+				ch0_is_coin = true;
+			}
+		}
 	}
 
 	void AudioHandler::play(uint8_t channel, uint8_t flags) {
@@ -111,7 +127,8 @@ namespace AudioHandler {
 	void AudioHandler::update(float dt) {
 		blit::channels[1].frequency = 600 + (blit::channels[1].adsr >> 16);
 
-		blit::channels[0].frequency = blit::channels[0].adsr_phase == blit::ADSRPhase::ATTACK ? 880 : 1318;
+		if(ch0_is_coin)
+			blit::channels[0].frequency = blit::channels[0].adsr_phase == blit::ADSRPhase::ATTACK ? 880 : 1318;
 		blit::channels[2].frequency = blit::channels[2].adsr_phase == blit::ADSRPhase::ATTACK ? 932 : 1396;
 
 		//blit::channels[3].frequency = 300 - (blit::channels[3].adsr >> 16);
